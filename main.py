@@ -49,33 +49,55 @@ def save_article_image(article, idx):
 def new_article_fetch():
     #image directory
     os.makedirs("images", exist_ok=True)
+    try:
+        # Fetch the top 5 article from <articles> tag
+        articles = driver.find_elements(By.CSS_SELECTOR, "article.c.c-d")
 
-    # Fetch the top 5 article from <articles> tag
-    articles = driver.find_elements(By.CSS_SELECTOR, "article.c.c-d")
+        # Fallback: If above doesn't work, try a more generic selector
+        if len(articles) < 5:
+            articles = driver.find_elements(By.TAG_NAME, "articles.c")
 
-    # Fallback: If above doesn't work, try a more generic selector
-    if len(articles) < 5:
-        articles = driver.find_elements(By.TAG_NAME, "articles.c")
+        if len(articles) ==0:
+            raise Exception("No articles found.")
 
-    top_titles = []
-    for idx, article in enumerate(articles[:5]):
-        #Print top 5 articles
-        driver.execute_script("arguments[0].scrollIntoView(true);", article) #scroll into view for lazy rendering
-        time.sleep(0.1)  # let the browser reflow
-        content = article.text.strip()
-        print("\n", "Article ", idx)
-        print(content)
+        top_titles = []
+        for idx, article in enumerate(articles[:5]):
+            #Scroll into view
+            driver.execute_script("arguments[0].scrollIntoView(true);", article)
+            time.sleep(0.1)  # let the browser reflow
+            content = article.text.strip()
+            # Print the content
+            print("\n", "Article ", idx)
+            print(content)
 
-        #Save associated image if found
-        save_article_image(article, idx)
+            #Save associated image if found
+            save_article_image(article, idx)
 
-        #Save article titles
-        try:
-            title = article.find_element(By.XPATH, ".//h2").text.strip()
-        except NoSuchElementException:
-            title = ""
-        top_titles.append(title)
+            #Save article titles
+            try:
+                title = article.find_element(By.XPATH, ".//h2").text.strip()
+            except NoSuchElementException:
+                title = ""
+            top_titles.append(title)
 
+            # Mark test as passed
+            driver.execute_script(
+                'browserstack_executor: {"action": "setSessionStatus", "arguments": '
+                '{"status":"passed","reason": "Top 5 articles fetched successfully"}}'
+            )
+
+    except Exception as e:
+        # Mark test as failed with reason
+        driver.execute_script(
+            f'''browserstack_executor: {{
+                "action": "setSessionStatus",
+                "arguments": {{
+                    "status": "failed",
+                    "reason": "{str(e)}"
+                }}
+            }}'''
+        )
+        raise
 
 try:
     # Step 1: Go to El País Opinion section
