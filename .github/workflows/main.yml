@@ -23,7 +23,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: 'BrowserStack Env Setup'
-        uses: 'browserstack/github-actions@v1.0.3/setup-env@master'
+        uses: 'browserstack/github-actions/setup-env@master'
         with:
           username:  ${{ secrets.BROWSERSTACK_USERNAME }}
           access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
