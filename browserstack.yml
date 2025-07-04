@@ -19,7 +19,7 @@ platforms:
     osVersion: 13.0
     browserName: Chrome
     deviceOrientation: landscape
-browserstackLocal: false
+browserstackLocal: true
 buildName: bstack-elpais-scraper
 projectName: ElPais Opinion Scraper
 CUSTOM_TAG_1: "You can set a custom Build Tag here"
