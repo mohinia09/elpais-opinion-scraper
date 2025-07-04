@@ -1,15 +1,21 @@
 # Import necessary modules from Selenium
 
 import os
+import re
 import time
 import shutil
 import requests
 from selenium import webdriver
+from collections import Counter
 from selenium.webdriver.common.by import By
+#from google.cloud import translate_v2 as translate
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 
+# Setup Translate client
+#translate_client = translate.Client()
+translated_titles = []
 
 # Setup Chrome
 options = Options()
@@ -25,7 +31,18 @@ service = Service(executable_path=chromedriver_path)
 driver = webdriver.Chrome(service=service, options=options)
 
 def save_article_image(article, idx):
-    # Try to extract image element
+    """
+    Saves the image from a given article element to a local 'image' folder.
+
+    Args:
+        article (WebElement): The article element containing the image tag.
+        idx (int): The index used to uniquely name the saved image file.
+
+    Returns:
+        None
+    """
+
+    # Try to extract image
     ext="jpg"
     src=None
     try:
@@ -46,7 +63,15 @@ def save_article_image(article, idx):
             print(f"Failed to download image: {src} (status {response.status_code})")
 
 
-def new_article_fetch():
+def fetch_articles():
+    """
+    Fetches and prints top 5 article elements from the currently loaded webpage. Also,
+    saves the title of elements to a list.
+
+    Returns:
+        None
+    """
+
     #image directory
     os.makedirs("images", exist_ok=True)
     try:
@@ -55,12 +80,11 @@ def new_article_fetch():
 
         # Fallback: If above doesn't work, try a more generic selector
         if len(articles) < 5:
-            articles = driver.find_elements(By.TAG_NAME, "articles.c")
+            articles = driver.find_elements(By.TAG_NAME, "articles.c-d")
 
         if len(articles) ==0:
             raise Exception("No articles found.")
 
-        top_titles = []
         for idx, article in enumerate(articles[:5]):
             #Scroll into view
             driver.execute_script("arguments[0].scrollIntoView(true);", article)
@@ -73,12 +97,19 @@ def new_article_fetch():
             #Save associated image if found
             save_article_image(article, idx)
 
-            #Save article titles
+            #Get article titles
             try:
                 title = article.find_element(By.XPATH, ".//h2").text.strip()
             except NoSuchElementException:
                 title = ""
-            top_titles.append(title)
+
+            # Translate to English
+            #result = translate_client.translate(title, target_language="en")
+            #translated = result["translatedText"]
+            print("Title: ", title)
+
+            #Save title to list
+            translated_titles.append(title)
 
             # Mark test as passed
             driver.execute_script(
@@ -100,12 +131,20 @@ def new_article_fetch():
         raise
 
 try:
-    # Step 1: Go to El País Opinion section
+    # Go to El País Opinion section
     driver.get("https://elpais.com/opinion/")
     time.sleep(3)
-    # accept cookie
-    # accept_cookies(driver)
-    new_article_fetch()
+
+    fetch_articles()
+
+    # Count word frequency
+    all_words = [word for title in translated_titles for word in re.findall(r'\b\w+\b', title.lower())]
+    word_freq = Counter(all_words)
+
+    # Print word frequency
+    print("\n Word Frequency:")
+    for word, count in word_freq.most_common():
+        print(f"- {word}: {count}")
 
 finally:
     driver.quit()
