@@ -23,11 +23,15 @@ jobs:
           pip install -r requirements.txt
 
       - name: 'BrowserStack Env Setup'
-        uses: 'browserstack/github-actions@v1.0.3'
+        uses: 'browserstack/github-actions@v1.0.3/setup-env@master'
         with:
           username:  ${{ secrets.BROWSERSTACK_USERNAME }}
           access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
           build-name: 'bstack-elpais-scraper'
           project-name: 'ElPais Opinion Scraper'
+            
+      - name: Run tests on BrowserStack
+        run: |
+           browserstack-sdk python main.py
       
         
