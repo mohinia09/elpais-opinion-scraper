@@ -27,6 +27,7 @@ jobs:
         with:
           username:  ${{ secrets.BROWSERSTACK_USERNAME }}
           access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-          config-file: browserstack.yml
+          build-name: 'bstack-elpais-scraper'
+          project-name: 'ElPais Opinion Scraper'
       
         
