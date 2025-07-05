@@ -30,6 +30,6 @@ jobs:
             
       - name: Run tests on BrowserStack
         run: |
-           browserstack-sdk python main.py
+          python main.py
       
         
