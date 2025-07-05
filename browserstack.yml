@@ -22,8 +22,7 @@ platforms:
 browserstackLocal: true
 buildName: bstack-elpais-scraper
 projectName: ElPais Opinion Scraper
-CUSTOM_TAG_1: "You can set a custom Build Tag here"
-# Use CUSTOM_TAG_<N> and set more build tags as you need.
+buildIdentifier: ${BUILD_NUMBER}
 debug: true
 networkLogs: false
 consoleLogs: info
