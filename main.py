@@ -8,13 +8,13 @@ import requests
 from selenium import webdriver
 from collections import Counter
 from selenium.webdriver.common.by import By
-#from google.cloud import translate_v2 as translate
+from google.cloud import translate_v2 as translate
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 
 # Setup Translate client
-#translate_client = translate.Client()
+translate_client = translate.Client()
 translated_titles = []
 
 # Setup Chrome
@@ -104,14 +104,14 @@ def fetch_articles():
                 title = ""
 
             # Translate to English
-            #result = translate_client.translate(title, target_language="en")
-            #translated = result["translatedText"]
-            print("Title: ", title)
+            result = translate_client.translate(title, target_language="en")
+            translated = result["translatedText"]
+            print("Title: ", translated)
 
             #Save title to list
-            translated_titles.append(title)
+            translated_titles.append(translated)
 
-            # Mark test as passed
+            #Mark test as passed
             driver.execute_script(
                 'browserstack_executor: {"action": "setSessionStatus", "arguments": '
                 '{"status":"passed","reason": "Top 5 articles fetched successfully"}}'
