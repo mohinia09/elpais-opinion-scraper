@@ -22,6 +22,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Decode and save credentials file
+        run: |
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_B64 }}" | base64 -d > credentials.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$PWD/credentials.json" >> $GITHUB_ENV
+
       - name: 'BrowserStack Env Setup'
         uses: 'browserstack/github-actions/setup-env@master'
         with:
@@ -30,6 +35,6 @@ jobs:
             
       - name: Run tests on BrowserStack
         run: |
-          python main.py
+          browserstack-sdk python main.py
       
         
